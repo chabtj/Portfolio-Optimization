@@ -6,8 +6,9 @@ import numpy as np
 import statistics as st
 from scipy.optimize import minimize, Bounds, LinearConstraint
 from datetime import datetime
+from math import exp
 ######################################################################################
-def main(number,risk):
+def main(number,risk,weight):
     df=pd.read_csv(f"/Users/tejasvichabbra/Desktop/Portfolio_Analysis/data/combined{number}.csv")
     df["TIMESTAMP"] = pd.to_datetime(df["TIMESTAMP"])
     df=df[df['SERIES']=='EQ']
@@ -106,7 +107,7 @@ def main(number,risk):
     mean_list=np.array(mean_list)
     def optimize(func, W, exp_ret, cov, target_risk):
         opt_bounds = Bounds(0, 1)
-        opt_constraints = ({'type': 'eq','fun': lambda W: 1.0 - np.sum(W)},{'type': 'eq','fun': lambda W: target_risk - (W.T@cov@W)**0.5})
+        opt_constraints = ({'type': 'eq','fun': lambda W: weight - np.sum(W)},{'type': 'eq','fun': lambda W: target_risk - (W.T@cov@W)**0.5})
         optimal_weights = minimize(func, W, args=(exp_ret, cov),method='SLSQP',bounds=opt_bounds,constraints=opt_constraints)
         return optimal_weights['x']
     def ret_return(W, exp_ret, cov):
@@ -140,11 +141,15 @@ def main(number,risk):
 
 ####################### EXCEL WRITER ################################
 col_names=['Expected Return' ,'Expected risk' ,'Final Earnings']
+
 fin_df=pd.DataFrame(columns=col_names)
 for x in np.arange(0.01,0.21,0.01):
+    weight=1
     for i in range (1,26):
-        final_dic=main(i,x)
+        final_dic=main(i,x,weight)
         a_series = pd.Series(final_dic, index = fin_df.columns)
         fin_df = fin_df.append(a_series, ignore_index=True)
+        weight*=exp(0.0225*0.25)
         print(fin_df)
-    fin_df.to_excel(f"final_output{x}.xlsx")
+
+fin_df.to_excel(f"final_output.xlsx")

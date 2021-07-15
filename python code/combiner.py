@@ -2,10 +2,13 @@
 import os
 import glob
 import pandas as pd
-os.chdir("/Users/tejasvichabbra/Desktop/Portfolio_Analysis/csv_data")##give path to all csv's
-extension = 'csv'
-all_filenames = [i for i in glob.glob('*.{}'.format(extension))]
+path="/Users/tejasvichabbra/Desktop/Portfolio_Analysis/data/dataset"
+for i in range(1,2):
+    path1=path+str(i)
+    os.chdir(path1)##give path to all csv's
+    extension = 'csv'
+    all_filenames = [i for i in glob.glob('*.{}'.format(extension))]
 #combine all files in the list
-combined_csv = pd.concat([pd.read_csv(f) for f in all_filenames ])
+    combined_csv = pd.concat([pd.read_csv(f) for f in all_filenames ])
 #export to csv
-combined_csv.loc[:,['SYMBOL','SERIES','CLOSE','TIMESTAMP']].to_csv( "/Users/tejasvichabbra/Desktop/Portfolio_Analysis/combined.csv", index=False, encoding='utf-8-sig')
+    combined_csv.loc[:,['SYMBOL','SERIES','CLOSE','TIMESTAMP']].to_csv( f"/Users/tejasvichabbra/Desktop/Portfolio_Analysis/data/combined{i}.csv", index=False, encoding='utf-8-sig')
